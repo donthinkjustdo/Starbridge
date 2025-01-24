@@ -1,0 +1,77 @@
+// script.js
+
+// Emoji Suggestions
+const emojiSuggestions = {
+  "happy": "Keep smiling! Try a yellow light visualization 🌟",
+  "sad": "Breathe deeply and focus on calming blues 💧",
+  "angry": "Take a moment to ground yourself with greens 🌿",
+  "tired": "Rest is essential; surround yourself with soft purples 🌙",
+  "thinking": "Think positively and focus on warm orange hues 🔥"
+};
+
+// Balance Output Section
+const balanceResult = document.getElementById('balance-result');
+
+// Compass Simulation
+const compass = document.getElementById('compass');
+function updateCompass() {
+  const now = new Date();
+  const sunAngle = ((now.getSeconds() * 6) % 360).toFixed(2);
+  compass.textContent = `Compass: ${sunAngle}° (Align to 22° or 23.5° for balance)`;
+}
+setInterval(updateCompass, 1000);
+
+// Voice Assistant
+const voiceStatus = document.getElementById('voice-status');
+const startVoiceButton = document.getElementById('start-voice');
+
+// Initialize Speech Recognition (Web Speech API)
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+const recognition = new SpeechRecognition();
+recognition.lang = 'en-US';
+recognition.interimResults = false;
+
+// Start Voice Recognition
+startVoiceButton.addEventListener('click', () => {
+  voiceStatus.textContent = "Listening...";
+  recognition.start();
+});
+
+// Handle Voice Input
+recognition.addEventListener('result', (event) => {
+  const userCommand = event.results[0][0].transcript.toLowerCase();
+  voiceStatus.textContent = `You said: "${userCommand}"`;
+
+  // Match Command to Suggestions
+  if (userCommand.includes("happy")) {
+    giveSuggestion("happy");
+  } else if (userCommand.includes("sad")) {
+    giveSuggestion("sad");
+  } else if (userCommand.includes("angry")) {
+    giveSuggestion("angry");
+  } else if (userCommand.includes("tired")) {
+    giveSuggestion("tired");
+  } else if (userCommand.includes("thinking")) {
+    giveSuggestion("thinking");
+  } else {
+    balanceResult.innerHTML = `<p>I didn't understand. Try saying 'I'm happy' or 'I'm sad'.</p>`;
+  }
+});
+
+// Provide Suggestions
+function giveSuggestion(state) {
+  const suggestion = emojiSuggestions[state] || "Find your inner balance!";
+  balanceResult.innerHTML = `<p>Suggestion: ${suggestion}</p>`;
+  speak(suggestion);
+}
+
+// Voice Output (Text-to-Speech)
+function speak(text) {
+  const utterance = new SpeechSynthesisUtterance(text);
+  window.speechSynthesis.speak(utterance);
+}
+
+// Handle Errors
+recognition.addEventListener('error', (event) => {
+  voiceStatus.textContent = "Error occurred. Try again.";
+});
